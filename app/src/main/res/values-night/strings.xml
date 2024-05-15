@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="upperTextHint">Tekst górny</string>
+    <string name="lowerTextHint">Tekst dolny</string>
+    <string name="generateButtonLabel">Generuj</string>
+</resources>
