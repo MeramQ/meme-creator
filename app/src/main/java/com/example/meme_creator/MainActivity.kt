@@ -10,6 +10,8 @@ import android.provider.MediaStore
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.graphics.drawable.toBitmap
 
@@ -18,7 +20,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var topEditText: EditText
     private lateinit var bottomEditText: EditText
     private lateinit var generateButton: Button
-    private val pickImage = 1
+    private lateinit var openGalleryLauncher: ActivityResultLauncher<Intent>
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -27,6 +30,18 @@ class MainActivity : AppCompatActivity() {
         topEditText = findViewById(R.id.upperEditText)
         bottomEditText = findViewById(R.id.lowerEditText)
         generateButton = findViewById(R.id.generateButton)
+
+        openGalleryLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == RESULT_OK) {
+                val data: Intent? = result.data
+                val selectedImage = data?.data
+                if (selectedImage != null) {
+                    val inputStream = contentResolver.openInputStream(selectedImage)
+                    val bitmap = BitmapFactory.decodeStream(inputStream)
+                    imageView.setImageBitmap(bitmap)
+                }
+            }
+        }
 
         imageView.setOnClickListener {
             openGallery()
@@ -45,29 +60,17 @@ class MainActivity : AppCompatActivity() {
 
     private fun openGallery() {
         val galleryIntent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
-        startActivityForResult(galleryIntent, pickImage)
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-
-        if (requestCode == pickImage && resultCode == RESULT_OK && data != null) {
-            val selectedImage = data.data
-            val bitmap =
-                BitmapFactory.decodeStream(contentResolver.openInputStream(selectedImage!!))
-            imageView.setImageBitmap(bitmap)
-        }
+        openGalleryLauncher.launch(galleryIntent)
     }
 
     private fun scaleBitMap(bitmap: Bitmap): Bitmap {
-        val width: Int = bitmap.getWidth()
-        val height: Int = bitmap.getHeight()
+        val width: Int = bitmap.width
+        val height: Int = bitmap.height
         val newWidth = width / 2
         val newHeight = height / 2
         return Bitmap.createScaledBitmap(bitmap, newWidth, newHeight, true)
     }
 
-    // TODO: add option to change font by user
     private fun drawTextOnBitmap(bitmap: Bitmap, text1: String, text2: String): Bitmap {
         val mutableBitmap = bitmap.copy(Bitmap.Config.ARGB_8888, true)
         val canvas = Canvas(mutableBitmap)
@@ -77,12 +80,7 @@ class MainActivity : AppCompatActivity() {
         paint.color = android.graphics.Color.WHITE
         paint.isAntiAlias = true
         canvas.drawText(text1, mutableBitmap.width / 2f, mutableBitmap.height / 8f, paint)
-        canvas.drawText(
-            text2,
-            mutableBitmap.width / 2f,
-            mutableBitmap.height - mutableBitmap.height / 30f,
-            paint
-        )
+        canvas.drawText(text2, mutableBitmap.width / 2f, mutableBitmap.height - mutableBitmap.height / 30f, paint)
         return mutableBitmap
     }
 }
