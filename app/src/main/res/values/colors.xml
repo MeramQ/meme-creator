@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="black">#FF000000</color>
-    <color name="white">#FFFFFFFF</color>
+    <color name="background_color">#FFFFFF</color> <!-- Jasne tło -->
+    <color name="text_color">#000000</color> <!-- Czarny tekst -->
+    <color name="hint_color">#808080</color> <!-- Szary hint -->
+    <color name="button_color">#2196F3</color> <!-- Niebieski przycisk -->
+    <color name="button_text_color">#FFFFFF</color> <!-- Biały tekst przycisku -->
+    <color name="edit_text_background_color">#FFFFFF</color> <!-- Tło EditText -->
+    <color name="edit_text_border_color">#808080</color> <!-- Obwódka EditText -->
 </resources>
