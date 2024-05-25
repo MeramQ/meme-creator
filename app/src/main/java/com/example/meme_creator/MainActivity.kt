@@ -50,10 +50,12 @@ class MainActivity : AppCompatActivity() {
         generateButton.setOnClickListener {
             val text1 = topEditText.text.toString()
             val text2 = bottomEditText.text.toString()
-            val bitmap = imageView.drawable.toBitmap()
-            val scaledBitmap = scaleBitMap(bitmap)
-            imageView.setImageBitmap(scaledBitmap)
-            val resultBitmap = drawTextOnBitmap(scaledBitmap, text1, text2)
+            var bitmap = imageView.drawable.toBitmap()
+            if(bitmap.width > 3000 || bitmap.height > 3000) {
+                bitmap = scaleBitMap(bitmap)
+            }
+            imageView.setImageBitmap(bitmap)
+            val resultBitmap = drawTextOnBitmap(bitmap, text1, text2)
             imageView.setImageBitmap(resultBitmap)
         }
     }
