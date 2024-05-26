@@ -4,7 +4,7 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Canvas
-import android.graphics.Paint
+import android.graphics.Typeface
 import android.os.Bundle
 import android.provider.MediaStore
 import android.text.Layout
@@ -85,9 +85,15 @@ class MainActivity : AppCompatActivity() {
         val mutableBitmap = bitmap.copy(Bitmap.Config.ARGB_8888, true)
         val canvas = Canvas(mutableBitmap)
         val paint = TextPaint()
-        paint.textSize = mutableBitmap.height / 7f
+        paint.textSize = mutableBitmap.height / 14f
         paint.color = android.graphics.Color.WHITE
         paint.isAntiAlias = true
+
+        val typeface = Typeface.createFromAsset(assets, "fonts/impact.ttf")
+        paint.typeface = typeface
+        paint.setShadowLayer(5f, 0f, 0f, android.graphics.Color.BLACK)
+
+
 
         val maxWidth = mutableBitmap.width - 20
         fun drawWrappedText(
@@ -117,7 +123,7 @@ class MainActivity : AppCompatActivity() {
         drawWrappedText(canvas, text1, 10f, topY, paint, maxWidth)
 
         val bottomY =
-            mutableBitmap.height - mutableBitmap.height / 6f
+            mutableBitmap.height - mutableBitmap.height / 10f
         drawWrappedText(
             canvas,
             text2,
