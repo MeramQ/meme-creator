@@ -7,6 +7,9 @@ import android.graphics.Canvas
 import android.graphics.Paint
 import android.os.Bundle
 import android.provider.MediaStore
+import android.text.Layout
+import android.text.StaticLayout
+import android.text.TextPaint
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
@@ -31,17 +34,18 @@ class MainActivity : AppCompatActivity() {
         bottomEditText = findViewById(R.id.lowerEditText)
         generateButton = findViewById(R.id.generateButton)
 
-        openGalleryLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            if (result.resultCode == RESULT_OK) {
-                val data: Intent? = result.data
-                val selectedImage = data?.data
-                if (selectedImage != null) {
-                    val inputStream = contentResolver.openInputStream(selectedImage)
-                    val bitmap = BitmapFactory.decodeStream(inputStream)
-                    imageView.setImageBitmap(bitmap)
+        openGalleryLauncher =
+            registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+                if (result.resultCode == RESULT_OK) {
+                    val data: Intent? = result.data
+                    val selectedImage = data?.data
+                    if (selectedImage != null) {
+                        val inputStream = contentResolver.openInputStream(selectedImage)
+                        val bitmap = BitmapFactory.decodeStream(inputStream)
+                        imageView.setImageBitmap(bitmap)
+                    }
                 }
             }
-        }
 
         imageView.setOnClickListener {
             openGallery()
@@ -51,9 +55,7 @@ class MainActivity : AppCompatActivity() {
             val text1 = topEditText.text.toString()
             val text2 = bottomEditText.text.toString()
             var bitmap = imageView.drawable.toBitmap()
-            if(bitmap.width > 3000 || bitmap.height > 3000) {
-                bitmap = scaleBitMap(bitmap)
-            }
+            bitmap = scaleBitMap(bitmap)
             imageView.setImageBitmap(bitmap)
             val resultBitmap = drawTextOnBitmap(bitmap, text1, text2)
             imageView.setImageBitmap(resultBitmap)
@@ -76,13 +78,49 @@ class MainActivity : AppCompatActivity() {
     private fun drawTextOnBitmap(bitmap: Bitmap, text1: String, text2: String): Bitmap {
         val mutableBitmap = bitmap.copy(Bitmap.Config.ARGB_8888, true)
         val canvas = Canvas(mutableBitmap)
-        val paint = Paint()
+        val paint = TextPaint()
         paint.textSize = mutableBitmap.height / 7f
-        paint.textAlign = Paint.Align.CENTER
         paint.color = android.graphics.Color.WHITE
         paint.isAntiAlias = true
-        canvas.drawText(text1, mutableBitmap.width / 2f, mutableBitmap.height / 8f, paint)
-        canvas.drawText(text2, mutableBitmap.width / 2f, mutableBitmap.height - mutableBitmap.height / 30f, paint)
+
+        val maxWidth = mutableBitmap.width - 20
+        fun drawWrappedText(
+            canvas: Canvas,
+            text: String,
+            x: Float,
+            y: Float,
+            paint: TextPaint,
+            maxWidth: Int
+        ) {
+            val staticLayout = StaticLayout(
+                text,
+                paint,
+                maxWidth,
+                Layout.Alignment.ALIGN_CENTER,
+                1.0f,
+                0.0f,
+                false
+            )
+            canvas.save()
+            canvas.translate(x, y)
+            staticLayout.draw(canvas)
+            canvas.restore()
+        }
+
+        val topY = Float.fromBits(mutableBitmap.height)
+        drawWrappedText(canvas, text1, 10f, topY, paint, maxWidth)
+
+        val bottomY =
+            mutableBitmap.height - mutableBitmap.height / 6f
+        drawWrappedText(
+            canvas,
+            text2,
+            10f,
+            bottomY,
+            paint,
+            maxWidth
+        )
+
         return mutableBitmap
     }
 }
