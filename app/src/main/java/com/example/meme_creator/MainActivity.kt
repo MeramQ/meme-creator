@@ -85,53 +85,59 @@ class MainActivity : AppCompatActivity() {
         val mutableBitmap = bitmap.copy(Bitmap.Config.ARGB_8888, true)
         val canvas = Canvas(mutableBitmap)
         val paint = TextPaint()
+        val outlinePaint = TextPaint()
+
         paint.textSize = mutableBitmap.height / 14f
         paint.color = android.graphics.Color.WHITE
         paint.isAntiAlias = true
 
+        outlinePaint.textSize = mutableBitmap.height / 14f
+        outlinePaint.color = android.graphics.Color.BLACK
+        outlinePaint.isAntiAlias = true
+        outlinePaint.style = android.graphics.Paint.Style.STROKE
+        outlinePaint.strokeWidth = 8f
+
         val typeface = Typeface.createFromAsset(assets, "fonts/impact.ttf")
         paint.typeface = typeface
-        paint.setShadowLayer(5f, 0f, 0f, android.graphics.Color.BLACK)
-
-
+        outlinePaint.typeface = typeface
 
         val maxWidth = mutableBitmap.width - 20
+
         fun drawWrappedText(
             canvas: Canvas,
             text: String,
             x: Float,
             y: Float,
             paint: TextPaint,
+            outlinePaint: TextPaint,
             maxWidth: Int
         ) {
-            val staticLayout = StaticLayout(
-                text,
-                paint,
-                maxWidth,
-                Layout.Alignment.ALIGN_CENTER,
-                1.0f,
-                0.0f,
-                false
-            )
+            val staticLayout = StaticLayout.Builder.obtain(text, 0, text.length, paint, maxWidth)
+                .setAlignment(Layout.Alignment.ALIGN_CENTER)
+                .setLineSpacing(0.0f, 1.0f)
+                .setIncludePad(false)
+                .build()
+
+            val outlineStaticLayout =
+                StaticLayout.Builder.obtain(text, 0, text.length, outlinePaint, maxWidth)
+                    .setAlignment(Layout.Alignment.ALIGN_CENTER)
+                    .setLineSpacing(0.0f, 1.0f)
+                    .setIncludePad(false)
+                    .build()
+
             canvas.save()
             canvas.translate(x, y)
-            staticLayout.draw(canvas)
+            outlineStaticLayout.draw(canvas)  // Draw the outline first
+            staticLayout.draw(canvas)         // Draw the text on top
             canvas.restore()
         }
 
-        val topY = Float.fromBits(mutableBitmap.height)
-        drawWrappedText(canvas, text1, 10f, topY, paint, maxWidth)
+        val topY = 10f // Adjust top text position as needed
+        drawWrappedText(canvas, text1, 10f, topY, paint, outlinePaint, maxWidth)
 
         val bottomY =
-            mutableBitmap.height - mutableBitmap.height / 10f
-        drawWrappedText(
-            canvas,
-            text2,
-            10f,
-            bottomY,
-            paint,
-            maxWidth
-        )
+            mutableBitmap.height - mutableBitmap.height / 10f // Adjust bottom text position as needed
+        drawWrappedText(canvas, text2, 10f, bottomY, paint, outlinePaint, maxWidth)
 
         return mutableBitmap
     }
