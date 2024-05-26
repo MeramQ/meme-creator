@@ -70,10 +70,16 @@ class MainActivity : AppCompatActivity() {
     private fun scaleBitMap(bitmap: Bitmap): Bitmap {
         val width: Int = bitmap.width
         val height: Int = bitmap.height
-        val newWidth = width / 2
-        val newHeight = height / 2
-        return Bitmap.createScaledBitmap(bitmap, newWidth, newHeight, true)
+
+        if (width > 1000 || height > 1000) {
+            val scale = 1000.0 / maxOf(width, height)
+            val newWidth = (width * scale).toInt()
+            val newHeight = (height * scale).toInt()
+            return Bitmap.createScaledBitmap(bitmap, newWidth, newHeight, true)
+        }
+        return bitmap
     }
+
 
     private fun drawTextOnBitmap(bitmap: Bitmap, text1: String, text2: String): Bitmap {
         val mutableBitmap = bitmap.copy(Bitmap.Config.ARGB_8888, true)
