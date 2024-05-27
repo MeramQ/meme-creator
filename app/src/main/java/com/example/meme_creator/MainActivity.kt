@@ -127,16 +127,16 @@ class MainActivity : AppCompatActivity() {
 
             canvas.save()
             canvas.translate(x, y)
-            outlineStaticLayout.draw(canvas)  // Draw the outline first
-            staticLayout.draw(canvas)         // Draw the text on top
+            outlineStaticLayout.draw(canvas)
+            staticLayout.draw(canvas)
             canvas.restore()
         }
 
-        val topY = 10f // Adjust top text position as needed
+        val topY = 10f
         drawWrappedText(canvas, text1, 10f, topY, paint, outlinePaint, maxWidth)
 
         val bottomY =
-            mutableBitmap.height - mutableBitmap.height / 10f // Adjust bottom text position as needed
+            mutableBitmap.height - mutableBitmap.height / 10f
         drawWrappedText(canvas, text2, 10f, bottomY, paint, outlinePaint, maxWidth)
 
         return mutableBitmap
