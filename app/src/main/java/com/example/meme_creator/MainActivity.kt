@@ -39,7 +39,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        if(!checkPermission()){
+        if (!checkPermission()) {
             requestPermission()
         }
 
@@ -81,14 +81,10 @@ class MainActivity : AppCompatActivity() {
         saveButton.setOnClickListener {
             val drawable = imageView.drawable
             if (drawable != null) {
-                if (checkPermission()) {
-                    val bitmap = drawable.toBitmap()
-                    saveBitmapToGallery(bitmap)
-                } else {
-                    requestPermission()
-                }
+                val bitmap = drawable.toBitmap()
+                saveImage(bitmap)
             } else {
-                Toast.makeText(this, "No image to save", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Brak mema do zapisu", Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -172,34 +168,32 @@ class MainActivity : AppCompatActivity() {
         return mutableBitmap
     }
 
-    private fun saveBitmapToGallery(bitmap: Bitmap) {
+    private fun saveImage(bitmap: Bitmap) {
+        val contentResolver = contentResolver
         val contentValues = ContentValues().apply {
-            put(MediaStore.Images.Media.DISPLAY_NAME, "meme_${System.currentTimeMillis()}.jpg")
-            put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg")
-            put(MediaStore.Images.Media.RELATIVE_PATH, "Pictures/MemeCreator")
+            put(MediaStore.MediaColumns.DISPLAY_NAME, "meme_${System.currentTimeMillis()}.jpg")
+            put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg")
+            put(MediaStore.MediaColumns.RELATIVE_PATH, "DCIM/MemeCreator")
         }
 
-        val contentResolver = applicationContext.contentResolver
         val uri =
             contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues)
-
-        uri?.let {
-            val outputStream: OutputStream? = contentResolver.openOutputStream(it)
-            outputStream.use { stream ->
-                if (stream != null) {
-                    bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream)
-                    Toast.makeText(this, "Image saved to gallery", Toast.LENGTH_SHORT).show()
-                }
+        if (uri != null) {
+            val outputStream: OutputStream? = contentResolver.openOutputStream(uri)
+            outputStream.use {
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, it!!)
+                Toast.makeText(this, "Mem zapisany pomyślnie", Toast.LENGTH_SHORT).show()
             }
-        } ?: run {
-            Toast.makeText(this, "Failed to save image", Toast.LENGTH_SHORT).show()
+        } else {
+            Toast.makeText(this, "Nie udało się zapisać mema", Toast.LENGTH_SHORT).show()
         }
     }
 
     private fun checkPermission(): Boolean {
-        val permission =
-            ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
-        return permission == PackageManager.PERMISSION_GRANTED
+        return ContextCompat.checkSelfPermission(
+            this,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE
+        ) == PackageManager.PERMISSION_GRANTED
     }
 
     private fun requestPermission() {
@@ -209,26 +203,4 @@ class MainActivity : AppCompatActivity() {
             PERMISSION_REQUEST_CODE
         )
     }
-
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        when (requestCode) {
-            PERMISSION_REQUEST_CODE -> {
-                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    Toast.makeText(this, "Permission granted", Toast.LENGTH_SHORT).show()
-                    val drawable = imageView.drawable
-                    if (drawable != null) {
-                        saveBitmapToGallery(drawable.toBitmap())
-                    }
-                } else {
-                    Toast.makeText(this, "Permission denied", Toast.LENGTH_SHORT).show()
-                }
-            }
-        }
-    }
-
 }
