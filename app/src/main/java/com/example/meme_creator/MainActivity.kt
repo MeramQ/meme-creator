@@ -83,12 +83,16 @@ class MainActivity : AppCompatActivity() {
         }
 
         saveButton.setOnClickListener {
-            val drawable = imageView.drawable
-            if (drawable != null) {
-                val bitmap = drawable.toBitmap()
-                saveImage(bitmap)
+            if (originalBitmap!=null){
+                val drawable = imageView.drawable
+                if (drawable != null) {
+                    val bitmap = drawable.toBitmap()
+                    saveImage(bitmap)
+                } else {
+                    Toast.makeText(this, "Brak mema do zapisu", Toast.LENGTH_SHORT).show()
+                }
             } else {
-                Toast.makeText(this, "Brak mema do zapisu", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Wybierz zdjęcie z galerii", Toast.LENGTH_SHORT).show()
             }
         }
     }
