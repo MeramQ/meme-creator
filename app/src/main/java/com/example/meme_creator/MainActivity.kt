@@ -71,10 +71,12 @@ class MainActivity : AppCompatActivity() {
         generateButton.setOnClickListener {
             val text1 = topEditText.text.toString()
             val text2 = bottomEditText.text.toString()
-            originalBitmap?.let { original ->
-                val bitmap = scaleBitMap(original)
+            if (originalBitmap!=null){
+                val bitmap = scaleBitMap(originalBitmap!!)
                 val resultBitmap = drawTextOnBitmap(bitmap, text1, text2)
                 imageView.setImageBitmap(resultBitmap)
+            } else {
+                Toast.makeText(this, "Wybierz zdjęcie z galerii", Toast.LENGTH_SHORT).show()
             }
             topEditText.setText("")
             bottomEditText.setText("")
