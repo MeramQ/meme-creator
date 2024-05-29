@@ -32,6 +32,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var generateButton: Button
     private lateinit var saveButton: Button
     private lateinit var openGalleryLauncher: ActivityResultLauncher<Intent>
+    private var originalBitmap: Bitmap? = null
 
     private val PERMISSION_REQUEST_CODE = 100
 
@@ -57,6 +58,7 @@ class MainActivity : AppCompatActivity() {
                     if (selectedImage != null) {
                         val inputStream = contentResolver.openInputStream(selectedImage)
                         val bitmap = BitmapFactory.decodeStream(inputStream)
+                        originalBitmap = bitmap
                         imageView.setImageBitmap(bitmap)
                     }
                 }
@@ -69,11 +71,11 @@ class MainActivity : AppCompatActivity() {
         generateButton.setOnClickListener {
             val text1 = topEditText.text.toString()
             val text2 = bottomEditText.text.toString()
-            var bitmap = imageView.drawable.toBitmap()
-            bitmap = scaleBitMap(bitmap)
-            imageView.setImageBitmap(bitmap)
-            val resultBitmap = drawTextOnBitmap(bitmap, text1, text2)
-            imageView.setImageBitmap(resultBitmap)
+            originalBitmap?.let { original ->
+                val bitmap = scaleBitMap(original)
+                val resultBitmap = drawTextOnBitmap(bitmap, text1, text2)
+                imageView.setImageBitmap(resultBitmap)
+            }
             topEditText.setText("")
             bottomEditText.setText("")
         }
